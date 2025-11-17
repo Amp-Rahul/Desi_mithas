@@ -1,0 +1,880 @@
+<!-- Chosen Palette: Warm Neutrals with Gold Accents -->
+<!-- Application Structure Plan: The SPA is designed as a thematic dashboard with strong interactive filtering (Information Architecture chosen for maximal content exploration). The structure is divided into a static Overview, an interactive Product Navigator (Filter by Product), a Health Focus Matrix (Filter by Theme), and a dynamic Detail Panel (Expert Narratives). This structure is chosen because the source report contains 16 distinct scripts centered around 6 products and 7 health themes. This interactive filtering approach allows users to easily synthesize which products address which health issues, prioritizing user understanding and non-linear exploration over the report's sequential chapter format. The content is designed to be easily digestible in sections for quick learning. -->
+<!-- Visualization & Content Choices: 1. Script/Product Counts -> Inform -> Big Numbers -> None -> Quick project scope summary. (HTML/CSS/Tailwind) 2. Product Focus -> Compare -> Bar Chart -> None (Static) -> Visually ranks content production by product. (Chart.js/Canvas) 3. Health Themes -> Organize/Compare -> Interactive Tag Filters -> Click to filter narratives -> Allows user-driven exploration by health interest. (HTML/CSS/Tailwind + Vanilla JS) 4. Key Ingredients -> Compare -> Polar Area Chart -> None (Static) -> Highlights recurring USPs. (Chart.js/Canvas, with label wrapping for 'Omega-3 fatty acids'). 5. Narratives/Details -> Inform -> Dynamic Text Panel -> Updates based on filter selection -> Delivers the core report findings (script, links, context) without clutter. (HTML/CSS/Tailwind + Vanilla JS) CONFIRMING: NO SVG graphics used. NO Mermaid JS used. -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Desi Mithas: Interactive Content Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        scroll-behavior: smooth;
+        background-color: #f9f7f3;
+      }
+      .chart-container-half {
+        position: relative;
+        width: 100%;
+        max-width: 550px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 300px;
+        max-height: 300px;
+      }
+      .chart-container-full {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 400px;
+        max-height: 400px;
+      }
+      @media (min-width: 768px) {
+        .chart-container-half {
+          height: 350px;
+          max-height: 350px;
+        }
+        .chart-container-full {
+          height: 450px;
+          max-height: 450px;
+        }
+      }
+      .nav-link {
+        transition: all 0.2s;
+      }
+      .nav-link:hover {
+        color: #b8860b;
+        transform: scale(1.05);
+      }
+      .active-link {
+        color: #b8860b;
+        border-bottom: 2px solid #b8860b;
+      }
+      .filter-tag {
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .filter-tag:hover {
+        background-color: #5d4037;
+        color: #f9f7f3;
+      }
+      .active-filter {
+        background-color: #b8860b;
+        color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "soft-bg": "#F9F7F3",
+              "dark-text": "#333333",
+              "accent-gold": "#B8860B",
+              "muted-gold": "#D3B683",
+              "earthy-brown": "#5D4037",
+            },
+          },
+        },
+      };
+    </script>
+
+    <header
+      class="bg-white sticky top-0 z-10 shadow-lg border-b border-gray-200"
+    >
+      <div
+        class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center"
+      >
+        <h1 class="text-3xl font-bold text-earthy-brown">
+          Desi Mithas: Content Portfolio
+        </h1>
+        <nav class="mt-3 md:mt-0 space-x-4 flex">
+          <a href="#overview" class="nav-link text-dark-text font-semibold"
+            >Overview</a
+          >
+          <a href="#products" class="nav-link text-dark-text font-semibold"
+            >Products</a
+          >
+          <a href="#health-focus" class="nav-link text-dark-text font-semibold"
+            >Health Focus</a
+          >
+          <a href="#narratives" class="nav-link text-dark-text font-semibold"
+            >Narratives</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+      <section id="overview" class="mb-12">
+        <h2
+          class="text-4xl font-extrabold text-dark-text mb-4 border-b pb-2 border-accent-gold"
+        >
+          Project Overview & Core Values
+        </h2>
+        <p class="text-lg text-gray-700 mb-8 max-w-4xl">
+          This section synthesizes the project's scope, products, and core
+          philosophical pillars. The **Desi Mithas Expert Videos** project
+          centers on leveraging traditional Indian wisdom and natural
+          ingredients to promote health and conscious consumption, featuring 16
+          distinct video scripts led by various experts and storytellers.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            class="bg-white rounded-xl shadow-lg p-6 text-center border-b-4 border-accent-gold"
+          >
+            <p class="text-6xl font-extrabold text-accent-gold">16</p>
+            <p class="text-xl font-semibold text-dark-text mt-2">
+              Total Video Scripts
+            </p>
+          </div>
+          <div
+            class="bg-white rounded-xl shadow-lg p-6 text-center border-b-4 border-accent-gold"
+          >
+            <p class="text-6xl font-extrabold text-accent-gold">6</p>
+            <p class="text-xl font-semibold text-dark-text mt-2">
+              Core Products Featured
+            </p>
+          </div>
+          <div
+            class="bg-white rounded-xl shadow-lg p-6 text-center border-b-4 border-accent-gold"
+          >
+            <p class="text-6xl font-extrabold text-accent-gold">7+</p>
+            <p class="text-xl font-semibold text-dark-text mt-2">
+              Key Health Focus Areas
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10 bg-white p-6 rounded-xl shadow-lg"
+        >
+          <div>
+            <h3 class="text-2xl font-bold text-dark-text mb-4">
+              Content Production Focus
+            </h3>
+            <p class="text-gray-600 mb-4">
+              Visualization of the primary products featured across the 16
+              scripts, showing the relative emphasis on each line (Goal:
+              Compare, Method: Bar Chart).
+            </p>
+            <div class="chart-container-half">
+              <canvas id="productFocusChart"></canvas>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-dark-text mb-4">
+              Core Ingredient Usage
+            </h3>
+            <p class="text-gray-600 mb-4">
+              The core philosophy is built on pure, traditional ingredients.
+              This chart highlights the most frequently used USPs (Goal:
+              Compare, Method: Polar Area Chart).
+            </p>
+            <div class="chart-container-half">
+              <canvas id="ingredientFocusChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="health-focus" class="mb-12">
+        <h2
+          class="text-4xl font-extrabold text-dark-text mb-4 border-b pb-2 border-accent-gold"
+        >
+          Health & Wellness Focus
+        </h2>
+        <p class="text-lg text-gray-700 mb-6 max-w-4xl">
+          The video content targets specific health needs, bridging **Ayurvedic
+          wisdom** and **modern science**. Use the tags below to filter the
+          narratives and see which experts and products are focused on a
+          specific health theme (Goal: Organize/Compare, Interaction: Filter
+          tags).
+        </p>
+
+        <div id="filterTags" class="flex flex-wrap gap-3 mb-8">
+          <!-- Tags populated by JS -->
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            id="productGrid"
+            class="md:col-span-2 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+          >
+            <!-- Product Cards populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <section id="narratives" class="mb-12 mt-10">
+        <h2
+          class="text-4xl font-extrabold text-dark-text mb-4 border-b pb-2 border-accent-gold"
+        >
+          Expert Narratives & Script Details
+        </h2>
+        <p class="text-lg text-gray-700 mb-6 max-w-4xl">
+          Explore the core messages and emotional narratives behind each video.
+          Select a tag or a product above, or browse the scripts below. Clicking
+          a script card will highlight its detailed summary here (Goal:
+          Inform/Organize, Method: Dynamic Detail Panel).
+        </p>
+
+        <div
+          id="narrativeList"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+        >
+          <!-- Initial Script Cards populated by JS -->
+        </div>
+
+        <div
+          id="scriptDetailPanel"
+          class="bg-white rounded-xl shadow-2xl p-6 border-l-4 border-earthy-brown hidden"
+        >
+          <p
+            class="text-sm font-semibold text-accent-gold mb-2"
+            id="detailScriptID"
+          >
+            SCRIPT 1
+          </p>
+          <h3
+            class="text-3xl font-extrabold text-dark-text mb-3"
+            id="detailTitle"
+          >
+            Flax Laddu – Swad aur Sehat ka Perfect Blend
+          </h3>
+          <p
+            class="text-lg text-gray-700 mb-4 font-semibold italic"
+            id="detailExpert"
+          >
+            Expert: Chef
+          </p>
+
+          <div class="flex flex-wrap gap-2 mb-4" id="detailThemes">
+            <!-- Themes populated dynamically -->
+          </div>
+
+          <p class="text-gray-600 mb-4" id="detailSummary">
+            This story features a chef who views cooking as an art of emotion
+            and tradition. Through Desi Mithas’ Flax Laddu, he blends authentic
+            taste with modern health, celebrating ingredients like flax seeds,
+            gur, and desi ghee. The core message is that true innovation lies
+            where purity, nutrition, and heritage come together.
+          </p>
+
+          <div class="bg-soft-bg p-4 rounded-lg border border-gray-200">
+            <p class="text-md font-semibold text-earthy-brown">
+              Key Ingredient Focus:
+            </p>
+            <ul
+              class="list-disc list-inside text-gray-700 ml-4 mt-2"
+              id="detailIngredients"
+            >
+              <li>Roasted flax seeds, gur, desi ghee, and nuts</li>
+              <li>No refined sugar, no preservatives</li>
+            </ul>
+          </div>
+
+          <a
+            id="detailVideoLink"
+            href="#"
+            target="_blank"
+            class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-accent-gold hover:bg-earthy-brown transition"
+          >
+            Watch Video Link &rarr;
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-earthy-brown text-gray-400 p-6 mt-8">
+      <div class="container mx-auto text-center">
+        <p>
+          Desi Mithas Interactive Portfolio. Data derived from Google Drive
+          source material.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      const scriptsData = [
+        {
+          id: "S1",
+          title: "Flax Laddu – Swad aur Sehat ka Perfect Blend",
+          expert: "Chef",
+          product: "Flax Laddu",
+          themes: ["Traditional Taste", "Heritage", "Natural Balance"],
+          link: "https://drive.google.com/file/d/1FPqQgxj7AOruLSE9Fqq1jsdsHUG2tZ4U/view?usp=sharing",
+          ingredients: ["Flax Seeds", "Gur (Jaggery)", "Desi Ghee", "Nuts"],
+          summary:
+            "This story features a chef who views cooking as an art of emotion and tradition. Through Desi Mithas’ Flax Laddu, he blends authentic taste with modern health, celebrating ingredients like flax seeds, gur, and desi ghee. The core message is that true innovation lies where purity, nutrition, and heritage come together.",
+        },
+        {
+          id: "S2",
+          title: "Thekua – Dadi Maa ki Yaadon Ka Swaad",
+          expert: "Dadi Maa (Grandmother)",
+          product: "Thekua",
+          themes: ["Traditional Taste", "Heritage", "Emotional Bonds"],
+          link: "https://drive.google.com/file/d/1gNzLkqs30YcUucWmPoFT2o-UDoYMXahD/view?usp=sharing",
+          ingredients: [
+            "Whole Wheat (Atta)",
+            "Jaggery (Gur)",
+            "Desi Ghee",
+            "Coconut",
+          ],
+          summary:
+            'This emotional story unfolds through the gentle words of a loving Dadi Maa, recalling the warmth and togetherness of making Thekua by hand. It revives the essence of heritage, health, and heartfelt memories, with the sweet representing a "sanskaar" and a "virasat" (cultural inheritance).',
+        },
+        {
+          id: "S3",
+          title:
+            "Doctor’s Talk – Understanding Insulin Resistance & Choosing Better Sweetness",
+          expert: "Doctor (Diabetologist)",
+          product: "Flax Laddu",
+          themes: ["Insulin Resistance", "Diabetes", "Natural Balance"],
+          link: "https://drive.google.com/file/d/1rQjKi5j62bNbWuXwshId2M1WlP7vubMK/view?usp=sharing",
+          ingredients: ["Jaggery", "Flax Seeds", "Desi Ghee"],
+          summary:
+            "An insightful talk explaining insulin resistance and how modern diets disrupt energy balance. The doctor encourages replacing refined sugar with wholesome, traditional options like Desi Mithas sweets—made from jaggery, flax seeds, and ghee—reminding us health lies in balance and mindful sweetness.",
+        },
+        {
+          id: "S4/6",
+          title: "Doctor Speaks: Understanding PCOS and the Power of Balance",
+          expert: "Doctor",
+          product: "Flax Laddu",
+          themes: ["PCOS", "Hormonal Balance", "Insulin Resistance"],
+          link: "https://drive.google.com/file/d/1QrW82ZFxypBl8s-5rV8A18XbKMG4cYSN/view?usp=sharing",
+          ingredients: ["Flax Seeds", "Jaggery", "Desi Ghee"],
+          summary:
+            "A compassionate film shedding light on PCOS, emphasizing how hormonal imbalance and insulin resistance affect women’s health. It highlights the healing power of flax seeds (Lignans) and features Flax Laddu as an example of mindful nutrition.",
+        },
+        {
+          id: "S7",
+          title: "Sweetness & Stillness – Mindful Energy with Desi Mithas",
+          expert: "Wellness Coach",
+          product: "Flax Laddu",
+          themes: ["Mindful Eating", "Focus", "Calm Energy"],
+          link: "https://drive.google.com/file/d/1suNZ9g_ALPsa_xGhC7YXDSUKT6c1Yt9N/view?usp=sharing",
+          ingredients: ["Flax Seeds", "Gur (Jaggery)", "Desi Ghee"],
+          summary:
+            "A serene film inviting viewers to rediscover balance. Through the mindful experience of savoring Flax Laddu, the coach shows how sweetness can bring peace, focus, and steady energy, reminding us that wellness is not about restriction, but mindful nourishment.",
+        },
+        {
+          id: "S8",
+          title: "Panjiri Ladoo – Strength that Comes from Care",
+          expert: "Ayurvedic Therapist",
+          product: "Panjiri Ladoo",
+          themes: ["Postpartum Recovery", "Bone Health", "Energy Restoration"],
+          link: "https://drive.google.com/file/d/1b85KOQ9Ja4C1nkPH9tOhZFrggoFeqGq0/view?usp=sharing",
+          ingredients: ["Gondh", "Makhana", "Dry Fruits", "Desi Ghee"],
+          summary:
+            "A heartfelt film about the quiet strength of mothers and the healing power of nourishment. It celebrates Panjiri Ladoo’s traditional wisdom, which restores energy, bone health (Gondh for collagen/calcium), and inner balance for postpartum recovery and general wellness.",
+        },
+        {
+          id: "S9",
+          title: "Thekua – Iron of Tradition, Energy of Care",
+          expert: "Public Health Nutritionist",
+          product: "Thekua",
+          themes: ["Anemia", "Iron Deficiency", "Steady Energy"],
+          link: "https://drive.google.com/file/d/1tDWnsF8LsWSLKQPoBiu5m_clE2LbDH0Q/view?usp=sharing",
+          ingredients: [
+            "Jaggery (Gud)",
+            "Whole Wheat (Atta)",
+            "Coconut",
+            "Desi Ghee",
+          ],
+          summary:
+            "A grounded story reminding us that true healing begins in the kitchen. It celebrates Thekua's perfect balance of iron-rich jaggery, whole wheat, and ghee to restore strength and fight fatigue, honoring women’s daily resilience.",
+        },
+        {
+          id: "S10",
+          title: "Mix Dal Namkeen – Balance that Keeps You Moving",
+          expert: "Diabetologist/Fitness Coach",
+          product: "Mix Dal Namkeen",
+          themes: ["Blood Sugar Control", "Healthy Snacking", "Protein/Fiber"],
+          link: "https://drive.google.com/file/d/1Ox-8vxmd3KToRc4MAdO4qNA4QaFchLex/view?usp=sharing",
+          ingredients: ["Moong Dal", "Masoor Dal", "Channa Dal"],
+          summary:
+            "An empowering video explaining how the right snacking habits maintain steady energy and blood sugar. It highlights Mix Dal Namkeen as a roasted, high-protein/fiber, low glycemic index swap, free from frying or refinement.",
+        },
+        {
+          id: "S11",
+          title: "Moong Dal Mathri – Taste that Heals Your Gut",
+          expert: "Gastroenterologist",
+          product: "Moong Dal Mathri",
+          themes: ["Gut Health", "Digestion", "Bloating Reduction"],
+          link: "https://drive.google.com/file/d/13oKg8-C2J4cPY2KhhWKwPGqjTeQCqSWV/view?usp=sharing",
+          ingredients: ["Moong Dal", "Ajwain", "Hing", "Desi Ghee"],
+          summary:
+            "A soothing video sharing how true wellness begins with a healthy gut. The expert explains the natural power of moong dal, ajwain, and hing in supporting digestion, reducing bloating, and restoring balance in a simple snack form.",
+        },
+        {
+          id: "S12",
+          title:
+            "Hair Health Begins in the Kitchen – The Natural Way to Nourish from Within",
+          expert: "Nutrition & Wellness Expert",
+          product: "Channa Badam Barfi",
+          themes: ["Hair Health", "Skin Glow", "Protein/Biotin"],
+          link: "https://drive.google.com/file/d/17u3JMeAZoc5zsrzTYUGt2mboB4h_Av3e/view?usp=sharing",
+          ingredients: [
+            "Channa (Chickpea)",
+            "Badam (Almonds)",
+            "Jaggery (Gud)",
+            "Desi Ghee",
+          ],
+          summary:
+            "Reveals the real secret to strong hair and glowing skin: nourishment from within. It highlights the power of protein, biotin, iron, and healthy fats found in ingredients like channa and almonds, using the Barfi as a beauty tonic.",
+        },
+        {
+          id: "S15",
+          title: "Immunity in a Box – Fighting Everyday Infections Naturally",
+          expert: "Pediatric Immunologist",
+          product: "Flax Laddu/Mix Dal Namkeen",
+          themes: ["Immunity", "Child Health", "Antioxidants"],
+          link: "https://drive.google.com/file/d/1mDPEDxdTEK3gPBrEuLAnzQ_qne3fsecA/view?usp=sharing",
+          ingredients: [
+            "Nuts",
+            "Makhana",
+            "Jaggery",
+            "Desi Ghee",
+            "Flax Seeds",
+            "Dal",
+          ],
+          summary:
+            "A warm video reminding parents that immunity is nurtured daily through balanced food. It explains how nuts, makhana, jaggery, and ghee strengthen natural defenses, featuring Flax Laddu and Mix Dal Namkeen as ideal lunchbox snacks.",
+        },
+        {
+          id: "S16",
+          title: "Screen-Time Fatigue – Food for the Brain & Eyes",
+          expert: "Eye Specialist/Diet Coach",
+          product: "Channa Badam Barfi",
+          themes: ["Screen-Time Fatigue", "Eye Health", "Cognitive Focus"],
+          link: "https://drive.google.com/file/d/11kOZYBSoB_2QlgycCndjt0VOJXIKwsZ0/view?usp=sharing",
+          ingredients: [
+            "Flax Seeds",
+            "Badam (Almonds)",
+            "Coconut",
+            "Jaggery",
+            "Ghee",
+          ],
+          summary:
+            "Addresses screen-time fatigue in kids. Explains how flax seeds (Omega-3s), almonds (Vitamin E), and coconut protect vision, calm the brain, and restore focus, using Channa Badam Barfi as the natural recovery food.",
+        },
+        {
+          id: "S17",
+          title: "Junk Ka Replacement – How to Make Kids Snack Smarter",
+          expert: "Clinical Nutritionist",
+          product: "Moong Dal Mathri/Mix Dal Namkeen",
+          themes: ["Healthy Snacking", "Child Health", "Protein/Fiber"],
+          link: "https://drive.google.com/file/d/1NHSrOvuVfLARG1YanYDKZJ5jqbQSptyI/view?usp=sharing",
+          ingredients: [
+            "Moong Dal",
+            "Masoor Dal",
+            "Channa Dal",
+            "Ajwain",
+            "Ghee",
+          ],
+          summary:
+            "A lively video teaching parents to replace junk food with smarter snacks. It contrasts empty-calorie chips with the nourishing goodness of Moong Dal Mathri and Mix Dal Namkeen—rich in protein, fiber, and taste—as a mindful swap.",
+        },
+        {
+          id: "S18",
+          title: "Iron Heroes – Battling Kids’ Anemia Naturally",
+          expert: "Public Health Dietitian",
+          product: "Thekua",
+          themes: ["Anemia", "Iron Deficiency", "Child Health"],
+          link: "https://drive.google.com/file/d/13nsuZ9mvovKZ3xa3P5Bgj5RPFq7HD5Fq/view?usp=sharing",
+          ingredients: ["Jaggery (Gud)", "Whole Wheat (Gehu)", "Coconut"],
+          summary:
+            "Sheds light on childhood anemia, emphasizing that the cure lies in the kitchen. It highlights the iron-rich goodness of jaggery, whole wheat, and coconut in Thekua to build stronger blood and sharper minds naturally.",
+        },
+        {
+          id: "S19",
+          title: "Attention & Memory Boosters – The Brain Food Routine",
+          expert: "Child Neuro-Nutritionist",
+          product: "Flax Laddu/Channa Badam Barfi",
+          themes: ["Cognitive Focus", "Memory", "Brain Food"],
+          link: "https://drive.google.com/file/d/1T1WUXkz35MY6ugvvrO71xT7OeY9zh7Ou/view?usp=sharing",
+          ingredients: ["Almonds", "Flax Seeds", "Jaggery", "Ghee"],
+          summary:
+            "Explains how focus and memory depend on nourishment. The expert highlights almonds (Biotin/Vitamin E) and flax seeds (Omega-3s) to fuel brain performance, creating a simple yet powerful “Brain Food Routine” using the Flax Laddu and Channa Badam Barfi.",
+        },
+        {
+          id: "S21",
+          title: "Mood & Energy Food – The Gut-Happiness Connection",
+          expert: "Gastroenterologist",
+          product: "Moong Dal Mathri",
+          themes: ["Gut Health", "Mood & Energy", "Digestion"],
+          link: "https://drive.google.com/file/d/1zX8WgrdnO4Tv798ZwqU9Sx67qEgthb4P/view?usp=sharing",
+          ingredients: ["Moong Dal", "Ajwain", "Hing", "Desi Ghee"],
+          summary:
+            "A soothing video revealing how true happiness begins in the gut. The expert explains how moong dal, ajwain, and hing naturally balance digestion and mood, featuring Moong Dal Mathri for restoring calm and emotional well-being.",
+        },
+      ];
+
+      const allThemes = [
+        "Traditional Taste",
+        "Heritage",
+        "Natural Balance",
+        "Insulin Resistance",
+        "Diabetes",
+        "PCOS",
+        "Hormonal Balance",
+        "Mindful Eating",
+        "Focus",
+        "Calm Energy",
+        "Postpartum Recovery",
+        "Bone Health",
+        "Energy Restoration",
+        "Anemia",
+        "Iron Deficiency",
+        "Steady Energy",
+        "Blood Sugar Control",
+        "Healthy Snacking",
+        "Protein/Fiber",
+        "Gut Health",
+        "Digestion",
+        "Bloating Reduction",
+        "Hair Health",
+        "Skin Glow",
+        "Protein/Biotin",
+        "Immunity",
+        "Child Health",
+        "Antioxidants",
+        "Screen-Time Fatigue",
+        "Eye Health",
+        "Cognitive Focus",
+        "Memory",
+        "Mood & Energy",
+      ];
+
+      const products = [
+        "Flax Laddu",
+        "Thekua",
+        "Panjiri Ladoo",
+        "Mix Dal Namkeen",
+        "Moong Dal Mathri",
+        "Channa Badam Barfi",
+      ];
+      let activeFilter = "All";
+
+      function generateUniqueThemeList() {
+        const uniqueThemes = new Set();
+        scriptsData.forEach((script) => {
+          script.themes.forEach((theme) => uniqueThemes.add(theme));
+        });
+        return Array.from(uniqueThemes).sort();
+      }
+
+      function wrapLabel(label) {
+        if (label.length <= 16) return label;
+        const words = label.split(" ");
+        const lines = [];
+        let currentLine = "";
+
+        words.forEach((word) => {
+          if ((currentLine + " " + word).length > 16) {
+            lines.push(currentLine.trim());
+            currentLine = word;
+          } else {
+            currentLine += " " + word;
+          }
+        });
+        lines.push(currentLine.trim());
+        return lines;
+      }
+
+      function createChart(ctx, type, data, options) {
+        const mandatoryTooltipConfig = {
+          plugins: {
+            tooltip: {
+              callbacks: {
+                title: function (tooltipItems) {
+                  const item = tooltipItems[0];
+                  let label = item.chart.data.labels[item.dataIndex];
+                  if (Array.isArray(label)) {
+                    return label.join(" ");
+                  } else {
+                    return label;
+                  }
+                },
+              },
+            },
+          },
+        };
+
+        const defaultOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: mandatoryTooltipConfig.plugins,
+        };
+
+        return new Chart(ctx, {
+          type,
+          data,
+          options: { ...defaultOptions, ...options },
+        });
+      }
+
+      function initCharts() {
+        const productCounts = products.map(
+          (p) => scriptsData.filter((s) => s.product.includes(p)).length
+        );
+        const productFocusCtx = document
+          .getElementById("productFocusChart")
+          .getContext("2d");
+        createChart(
+          productFocusCtx,
+          "bar",
+          {
+            labels: products,
+            datasets: [
+              {
+                label: "Number of Scripts",
+                data: productCounts,
+                backgroundColor: [
+                  "#B8860B",
+                  "#5D4037",
+                  "#D3B683",
+                  "#B8860B",
+                  "#5D4037",
+                  "#D3B683",
+                ],
+                borderRadius: 4,
+              },
+            ],
+          },
+          {
+            scales: {
+              x: { grid: { display: false } },
+              y: { beginAtZero: true, ticks: { precision: 0 } },
+            },
+            plugins: { legend: { display: false } },
+          }
+        );
+
+        const ingredientFrequency = {
+          "Gur/Jaggery": 8,
+          "Desi Ghee": 8,
+          "Flax Seeds": 5,
+          "Badam/Almonds": 4,
+          "Whole Wheat/Atta": 3,
+          "Moong Dal": 3,
+          "Ajwain/Hing": 2,
+          "Omega-3 fatty acids": 4,
+        };
+        const ingredientLabels =
+          Object.keys(ingredientFrequency).map(wrapLabel);
+        const ingredientData = Object.values(ingredientFrequency);
+
+        const ingredientFocusCtx = document
+          .getElementById("ingredientFocusChart")
+          .getContext("2d");
+        createChart(
+          ingredientFocusCtx,
+          "polarArea",
+          {
+            labels: ingredientLabels,
+            datasets: [
+              {
+                data: ingredientData,
+                backgroundColor: [
+                  "#5D4037CC",
+                  "#B8860BCC",
+                  "#D3B683CC",
+                  "#5D4037CC",
+                  "#B8860BCC",
+                  "#D3B683CC",
+                  "#5D4037CC",
+                  "#B8860BCC",
+                ],
+                borderColor: "#F9F7F3",
+                borderWidth: 1,
+              },
+            ],
+          },
+          {
+            scales: {
+              r: { grid: { color: "#E5E7EB" }, ticks: { display: false } },
+            },
+            plugins: { legend: { position: "right" } },
+          }
+        );
+      }
+
+      function displayScripts(filter = "All") {
+        const listContainer = document.getElementById("narrativeList");
+        const productGridContainer = document.getElementById("productGrid");
+        listContainer.innerHTML = "";
+        productGridContainer.innerHTML = "";
+        let filteredScripts = scriptsData;
+
+        if (filter !== "All") {
+          filteredScripts = scriptsData.filter(
+            (s) => s.themes.includes(filter) || s.product === filter
+          );
+        }
+
+        const productScriptMap = products.reduce((acc, p) => {
+          acc[p] = scriptsData.filter((s) => s.product.includes(p));
+          return acc;
+        }, {});
+
+        products.forEach((product) => {
+          const scripts = productScriptMap[product];
+          const active =
+            filter === product
+              ? "border-accent-gold shadow-xl"
+              : "border-gray-200";
+          const card = `
+                    <div id="product-card-${product.replace(
+                      /\s/g,
+                      "-"
+                    )}" data-product="${product}" class="bg-white rounded-xl shadow-md p-5 border-l-4 ${active} cursor-pointer transition-all duration-300 hover:shadow-xl hover:border-accent-gold" onclick="selectFilter('${product}')">
+                        <p class="text-sm font-semibold text-muted-gold mb-1">Product Line</p>
+                        <h3 class="text-2xl font-extrabold text-earthy-brown">${product}</h3>
+                        <p class="text-lg text-gray-600 mt-2">${
+                          scripts.length
+                        } Scripts</p>
+                        <div class="mt-3 flex flex-wrap gap-1">
+                            ${scripts
+                              .map(
+                                (s) =>
+                                  `<span class="px-2 py-0.5 text-xs font-medium bg-soft-bg text-dark-text rounded">${s.id}</span>`
+                              )
+                              .join("")}
+                        </div>
+                    </div>
+                `;
+          productGridContainer.innerHTML += card;
+        });
+
+        filteredScripts.forEach((script) => {
+          const card = `
+                    <div id="script-card-${script.id}" class="bg-white rounded-lg shadow-md p-4 border-l-4 border-muted-gold hover:border-accent-gold cursor-pointer transition" onclick="showScriptDetail('${script.id}')">
+                        <p class="text-xs font-semibold text-accent-gold">${script.expert}</p>
+                        <h4 class="text-lg font-bold text-dark-text mt-1">${script.title}</h4>
+                        <p class="text-sm text-gray-600 mt-2 line-clamp-2">${script.summary}</p>
+                        <p class="text-xs font-medium mt-2 text-earthy-brown">Product: ${script.product}</p>
+                    </div>
+                `;
+          listContainer.innerHTML += card;
+        });
+
+        if (filteredScripts.length > 0) {
+          showScriptDetail(filteredScripts[0].id);
+        } else {
+          document.getElementById("scriptDetailPanel").classList.add("hidden");
+          document.getElementById(
+            "narrativeList"
+          ).innerHTML = `<p class="md:col-span-3 text-center text-xl text-gray-500 py-10">No scripts found for the selected filter: ${filter}</p>`;
+        }
+        updateFilterTagsUI(filter);
+      }
+
+      function showScriptDetail(scriptId) {
+        const script = scriptsData.find((s) => s.id === scriptId);
+        if (!script) return;
+
+        document.getElementById("detailScriptID").textContent = script.id;
+        document.getElementById("detailTitle").textContent = script.title;
+        document.getElementById(
+          "detailExpert"
+        ).textContent = `Expert: ${script.expert} | Product: ${script.product}`;
+        document.getElementById("detailSummary").textContent = script.summary;
+        document.getElementById("detailVideoLink").href = script.link;
+
+        const themesContainer = document.getElementById("detailThemes");
+        themesContainer.innerHTML = script.themes
+          .map(
+            (theme) =>
+              `<span class="px-3 py-1 text-xs font-medium bg-muted-gold text-white rounded-full">${theme}</span>`
+          )
+          .join("");
+
+        const ingredientsContainer =
+          document.getElementById("detailIngredients");
+        ingredientsContainer.innerHTML = script.ingredients
+          .map((ing) => `<li>${ing}</li>`)
+          .join("");
+
+        document.getElementById("scriptDetailPanel").classList.remove("hidden");
+
+        document.querySelectorAll("#narrativeList > div").forEach((card) => {
+          card.classList.remove("border-l-4", "border-accent-gold");
+          card.classList.add("border-l-4", "border-muted-gold");
+        });
+        document
+          .getElementById(`script-card-${scriptId}`)
+          .classList.add("border-l-4", "border-accent-gold");
+
+        // Scroll to the detail panel
+        document
+          .getElementById("scriptDetailPanel")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function renderFilterTags() {
+        const tagsContainer = document.getElementById("filterTags");
+        const uniqueThemes = generateUniqueThemeList();
+
+        let tagsHTML = `<span data-filter="All" class="filter-tag px-4 py-2 rounded-full font-semibold text-sm border border-dark-text bg-white text-dark-text active-filter" onclick="selectFilter('All')">Show All (${scriptsData.length})</span>`;
+
+        uniqueThemes.forEach((theme) => {
+          const count = scriptsData.filter((s) =>
+            s.themes.includes(theme)
+          ).length;
+          tagsHTML += `<span data-filter="${theme}" class="filter-tag px-4 py-2 rounded-full font-semibold text-sm border border-dark-text bg-white text-dark-text" onclick="selectFilter('${theme}')">${theme} (${count})</span>`;
+        });
+        tagsContainer.innerHTML = tagsHTML;
+      }
+
+      function updateFilterTagsUI(newFilter) {
+        document.querySelectorAll(".filter-tag").forEach((tag) => {
+          tag.classList.remove("active-filter", "bg-accent-gold", "text-white");
+          tag.classList.add("bg-white", "text-dark-text");
+          if (tag.getAttribute("data-filter") === newFilter) {
+            tag.classList.add("active-filter", "bg-accent-gold", "text-white");
+            tag.classList.remove("bg-white", "text-dark-text");
+          }
+        });
+
+        document.querySelectorAll("#productGrid > div").forEach((card) => {
+          card.classList.remove(
+            "border-l-4",
+            "border-accent-gold",
+            "shadow-xl"
+          );
+          card.classList.add("border-l-4", "border-gray-200");
+          if (card.getAttribute("data-product") === newFilter) {
+            card.classList.add("border-l-4", "border-accent-gold", "shadow-xl");
+          }
+        });
+      }
+
+      function selectFilter(filter) {
+        activeFilter = filter;
+        displayScripts(filter);
+      }
+
+      window.onload = () => {
+        initCharts();
+        renderFilterTags();
+        displayScripts("All");
+      };
+    </script>
+  </body>
+</html>
